@@ -1,4 +1,4 @@
-package todo
+package todos
 
 import (
 	"errors"
@@ -71,6 +71,15 @@ func newTodo(msg string) Todo {
 	}
 }
 
+func Revert(id string) error {
+	location, err := findTodoLocation(id)
+	if err != nil {
+		return err
+	}
+	setTodoUncompleteByLocation(location)
+	return nil
+}
+
 func findTodoLocation(id string) (int, error) {
 	mtx.RLock()
 	defer mtx.RUnlock()
@@ -93,7 +102,11 @@ func setTodoCompleteByLocation(location int) {
 	list[location].Complete = true
 	mtx.Unlock()
 }
-
+func setTodoUncompleteByLocation(location int) {
+	mtx.Lock()
+	list[location].Complete = false
+	mtx.Unlock()
+}
 func isMatchingID(a string, b string) bool {
 	return a == b
 }
